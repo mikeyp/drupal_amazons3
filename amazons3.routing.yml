@@ -1,4 +1,4 @@
-amazons3.admin_config_system:
+amazons3.admin_config:
   path: '/admin/config/media/amazons3'
   defaults:
     _form: 'Drupal\amazons3\Form\SettingsForm'
