@@ -1,0 +1,5 @@
+services:
+  amazons3.stream_wrapper:
+    class: Drupal\amazons3\StreamWrapper
+    tags:
+      - { name: stream_wrapper, scheme: s3 }

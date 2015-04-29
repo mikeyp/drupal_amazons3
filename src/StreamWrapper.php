@@ -7,9 +7,11 @@ use Doctrine\Common\Cache\ChainCache;
 use Drupal\amazons3\Matchable\BasicPath;
 use Drupal\amazons3\Matchable\PresignedPath;
 use Guzzle\Cache\DoctrineCacheAdapter;
-use \Aws\S3\S3Client as AwsS3Client;
-use Guzzle\Http\Mimetypes;
+use Aws\S3\S3Client as AwsS3Client;
 use Guzzle\Http\Url;
+use Drupal\Core\StreamWrapper\StreamWrapperInterface;
+use Aws\S3\StreamWrapper as S3StreamWrapper;
+
 
 /**
  * @file
@@ -18,7 +20,7 @@ use Guzzle\Http\Url;
  * Implements DrupalStreamWrapperInterface to provide an Amazon S3 wrapper with
  * the s3:// prefix.
  */
-class StreamWrapper extends \Aws\S3\StreamWrapper implements \DrupalStreamWrapperInterface {
+class StreamWrapper extends S3StreamWrapper implements StreamWrapperInterface {
   use DrupalAdapter\Common;
   use DrupalAdapter\FileMimetypes;
 
@@ -511,4 +513,123 @@ class StreamWrapper extends \Aws\S3\StreamWrapper implements \DrupalStreamWrappe
     $this->injectCname($url);
     return $url;
   }
+
+  /**
+   * Returns the type of stream wrapper.
+   *
+   * @return int
+   */
+  public static function getType() {
+    // TODO: Implement getType() method.
+  }
+
+  /**
+   * Returns the description of the stream wrapper for use in the UI.
+   *
+   * @return string
+   *   The stream wrapper description.
+   */
+  public function getDescription() {
+    // TODO: Implement getDescription() method.
+  }
+
+  /**
+   * Sets metadata on the stream.
+   *
+   * @param string $path
+   *   A string containing the URI to the file to set metadata on.
+   * @param int $option
+   *   One of:
+   *   - STREAM_META_TOUCH: The method was called in response to touch().
+   *   - STREAM_META_OWNER_NAME: The method was called in response to chown()
+   *     with string parameter.
+   *   - STREAM_META_OWNER: The method was called in response to chown().
+   *   - STREAM_META_GROUP_NAME: The method was called in response to chgrp().
+   *   - STREAM_META_GROUP: The method was called in response to chgrp().
+   *   - STREAM_META_ACCESS: The method was called in response to chmod().
+   * @param mixed $value
+   *   If option is:
+   *   - STREAM_META_TOUCH: Array consisting of two arguments of the touch()
+   *     function.
+   *   - STREAM_META_OWNER_NAME or STREAM_META_GROUP_NAME: The name of the owner
+   *     user/group as string.
+   *   - STREAM_META_OWNER or STREAM_META_GROUP: The value of the owner
+   *     user/group as integer.
+   *   - STREAM_META_ACCESS: The argument of the chmod() as integer.
+   *
+   * @return bool
+   *   Returns TRUE on success or FALSE on failure. If $option is not
+   *   implemented, FALSE should be returned.
+   *
+   * @see http://www.php.net/manual/streamwrapper.stream-metadata.php
+   */
+  public function stream_metadata($path, $option, $value) {
+    // TODO: Implement stream_metadata() method.
+  }
+
+  /**
+   * Change stream options.
+   *
+   * This method is called to set options on the stream.
+   *
+   * @param int $option
+   *   One of:
+   *   - STREAM_OPTION_BLOCKING: The method was called in response to
+   *     stream_set_blocking().
+   *   - STREAM_OPTION_READ_TIMEOUT: The method was called in response to
+   *     stream_set_timeout().
+   *   - STREAM_OPTION_WRITE_BUFFER: The method was called in response to
+   *     stream_set_write_buffer().
+   * @param int $arg1
+   *   If option is:
+   *   - STREAM_OPTION_BLOCKING: The requested blocking mode:
+   *     - 1 means blocking.
+   *     - 0 means not blocking.
+   *   - STREAM_OPTION_READ_TIMEOUT: The timeout in seconds.
+   *   - STREAM_OPTION_WRITE_BUFFER: The buffer mode, STREAM_BUFFER_NONE or
+   *     STREAM_BUFFER_FULL.
+   * @param int $arg2
+   *   If option is:
+   *   - STREAM_OPTION_BLOCKING: This option is not set.
+   *   - STREAM_OPTION_READ_TIMEOUT: The timeout in microseconds.
+   *   - STREAM_OPTION_WRITE_BUFFER: The requested buffer size.
+   *
+   * @return bool
+   *   TRUE on success, FALSE otherwise. If $option is not implemented, FALSE
+   *   should be returned.
+   */
+  public function stream_set_option($option, $arg1, $arg2) {
+    // TODO: Implement stream_set_option() method.
+  }
+
+  /**
+   * Truncate stream.
+   *
+   * Will respond to truncation; e.g., through ftruncate().
+   *
+   * @param int $new_size
+   *   The new size.
+   *
+   * @return bool
+   *   TRUE on success, FALSE otherwise.
+   */
+  public function stream_truncate($new_size) {
+    // TODO: Implement stream_truncate() method.
+  }
+
+  /**
+   * Returns the name of the stream wrapper for use in the UI.
+   *
+   * @return string
+   *   The stream wrapper name.
+   */
+  public function getName() {
+    // TODO: Implement getName() method.
+  }
+
+  function __call($name, $arguments) {
+    // TODO: Implement __call() method.
+  }
+
+
 }

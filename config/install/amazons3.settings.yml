@@ -1,0 +1,17 @@
+key: null
+secret: null
+bucket: null
+cache: true
+cache_expiration: 0
+cname: false
+domain: null
+cloudfront: false
+hostname: null
+torrents:
+  - null
+presigned_urls:
+  - null
+saveas:
+  - null
+rrs:
+  - null

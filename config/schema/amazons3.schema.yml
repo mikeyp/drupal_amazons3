@@ -1,0 +1,56 @@
+# Schema for the configuration files of the amazons3 module.
+amazons3.settings:
+  type: mapping
+  label: 'Console Logger settings'
+  mapping:
+    key:
+      type: string
+      label: 'Amazon S3 access key'
+    secret:
+      type: string
+      label: 'Amazon S3 secret key'
+    bucket:
+      type: string
+      label: 'Default bucket name'
+    cache:
+      type: boolean
+      label: 'Enable metadata caching'
+    cache_expiration:
+      type:  integer
+      label: 'Expiration of cached file metadata'
+    cname:
+      type: boolean
+      label: 'Enable CNAME'
+    domain:
+      type: string
+      label: 'CDN Domain Name'
+    cloudfront:
+      type: boolean
+      label: 'Enable CloudFront'
+    hostname:
+      type: string
+      label: 'Custom Hostname'
+    torrents:
+      type: sequence
+      label: 'Paths to be delivered via torrent URL'
+      sequence:
+        - type: string
+          label: 'Path'
+    presigned_urls:
+      type: sequence
+      label: 'Paths to be delivered via Presigned URLs'
+      sequence:
+        - type: string
+          label: 'Path'
+    saveas:
+      type: sequence
+      label: 'Paths to be delivered with Content-disposition header'
+      sequence:
+        - type: string
+          label: 'Path'
+    rrs:
+      type: sequence
+      label: 'Paths to be delivered via Reduced Redundancy Storage'
+      sequence:
+        - type: string
+          label: 'Path'
