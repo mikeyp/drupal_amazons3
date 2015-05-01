@@ -4,6 +4,7 @@ use Aws\Common\Credentials\Credentials;
 use Drupal\amazons3\Exception\S3ConnectValidationException;
 use Drupal\amazons3\S3Client;
 use Drupal\amazons3\S3Url;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * @file
@@ -312,9 +313,9 @@ function amazons3_upload_location($uri_scheme, $bucket = NULL, $file_directory =
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function amazons3_form_field_ui_field_settings_form_alter(&$form, &$form_state, $form_id) {
+function amazons3_form_field_ui_field_settings_form_alter(&$form, FormStateInterface $form_state) {
   $type = $form['field']['type']['#value'];
-  _amazons3_field_configuration($form, $type);
+  _amazons3_field_configuration($form, $form_state, $type);
 }
 
 /**
@@ -322,9 +323,9 @@ function amazons3_form_field_ui_field_settings_form_alter(&$form, &$form_state, 
  *
  * Add bucket configuration to each file field form.
  */
-function amazons3_form_field_ui_field_edit_form_alter(&$form, &$form_state, $form_id) {
-  $type = $form['#field']['type'];
-  _amazons3_field_configuration($form, $type);
+function amazons3_form_field_ui_field_edit_form_alter(&$form, FormStateInterface $form_state) {
+  $type = $form['#field']->getType();
+  _amazons3_field_configuration($form, $form_state, $type);
 }
 
 /**
@@ -408,25 +409,28 @@ function amazons3_uri_add_bucket($target) {
  *
  * @param array &$form
  *   The form to alter.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state.
  * @param string $type
  *   The field type being modified.
  */
-function _amazons3_field_configuration(array &$form, $type) {
+function _amazons3_field_configuration(array &$form, FormStateInterface $form_state, $type) {
   foreach (amazons3_file_like_field() as $types) {
     if ($type == $types) {
-      $settings = &$form['field']['settings'];
-      $bucket_setting = isset($form['#field']['settings']['amazons3_bucket']) ? $form['#field']['settings']['amazons3_bucket'] : '';
+      $bucket_setting = $form_state->get('field')->getThirdPartySetting('amazons3', 'bucket');
+      $bucket_setting = !empty($bucket_setting) ? $bucket_setting : '';
 
-      $settings['uri_scheme']['#weight'] = 50;
+      $config_settings = \Drupal::config('amazons3.settings');
 
-      $settings['amazons3_bucket'] = array(
+      $settings = &$form['field']['third_party_settings'];
+      $settings['amazons3']['bucket'] = array(
         '#type' => 'textfield',
         '#title' => t('Amazon S3 bucket'),
         '#description' => t(
           'Leave blank to use the site-wide default bucket <a href="@config">currently set to %bucket</a>.',
           array(
-            '@config' => url('admin/config/media/amazons3'),
-            '%bucket' => variable_get('amazons3_bucket', ''),
+            '@config' => \Drupal::url('amazons3.admin_config'),
+            '%bucket' => $config_settings->get('bucket'),
           )
         ),
         '#states' => array(

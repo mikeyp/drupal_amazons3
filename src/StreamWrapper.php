@@ -515,12 +515,10 @@ class StreamWrapper extends S3StreamWrapper implements StreamWrapperInterface {
   }
 
   /**
-   * Returns the type of stream wrapper.
-   *
-   * @return int
+   * {@inheritdoc}
    */
   public static function getType() {
-    // TODO: Implement getType() method.
+    return StreamWrapperInterface::WRITE_VISIBLE;
   }
 
   /**
@@ -618,18 +616,9 @@ class StreamWrapper extends S3StreamWrapper implements StreamWrapperInterface {
   }
 
   /**
-   * Returns the name of the stream wrapper for use in the UI.
-   *
-   * @return string
-   *   The stream wrapper name.
+   * {@inheritdoc}
    */
   public function getName() {
-    // TODO: Implement getName() method.
+    return t('Amazon S3');
   }
-
-  function __call($name, $arguments) {
-    // TODO: Implement __call() method.
-  }
-
-
 }

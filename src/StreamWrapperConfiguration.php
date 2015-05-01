@@ -13,12 +13,12 @@ use Guzzle\Common\Collection;
  * PHP doesn't pass in any parameters when constructing a new stream wrapper.
  * One possibility would be to use stream_context_create(), but Drupal doesn't
  * use it when registering streams. This makes it near impossible to inject
- * configuration, forcing us to rely on variable_get() and a bootstrapped
+ * configuration, forcing us to rely on the config system and a bootstrapped
  * database.
  *
- * This class defaults to using variable_get() and so on, but can be constructed
- * manually to disable this behaviour. For this setup, use the various set
- * methods to configure the stream wrapper.
+ * This class defaults to using the config system and so on, but can be
+ * constructed manually to disable this behaviour. For this setup, use the
+ * various set methods to configure the stream wrapper.
  *
  * @class StreamWrapperConfiguration
  * @package Drupal\amazons3
@@ -236,7 +236,7 @@ class StreamWrapperConfiguration extends Collection {
   /**
    * Set if objects should be served with S3 directly.
    */
-  public function serveWithS3() {
+  public function wserveWithS3() {
     $this->data['cloudFront'] = FALSE;
   }
 
@@ -323,21 +323,23 @@ class StreamWrapperConfiguration extends Collection {
    * @codeCoverageIgnore
    */
   public static function fromDrupalVariables() {
-    $config = self::fromConfig(array('bucket' => variable_get('amazons3_bucket', NULL)));
+
+    $settings = \Drupal::config('amazons3.settings');
+    $config = self::fromConfig(array('bucket' => $settings->get('bucket')));
     $defaults = $config->defaults();
 
-    $config->setHostname(variable_get('amazons3_hostname', $defaults['hostname']));
+    $config->setHostname($settings->get('hostname'));
 
     // CNAME support for customizing S3 URLs.
-    if (variable_get('amazons3_cname', FALSE)) {
-      $domain = variable_get('amazons3_domain', $defaults['domain']);
+    if ($settings->get('cname')) {
+      $domain = $settings->get('domain');
       if (strlen($domain) > 0) {
         $config->setDomain($domain);
       }
       else {
         $config->setDomain($config->getBucket());
       }
-      if (variable_get('amazons3_cloudfront', $defaults['cloudFront'])) {
+      if (!$settings->get('cloudfront')) {
         $path = variable_get('amazons3_cloudfront_private_key', $defaults['cloudFrontPrivateKey']);
         $keyPairId = variable_get('amazons3_cloudfront_keypair_id', $defaults['cloudFrontKeyPairId']);
         $config->setCloudFrontCredentials($path, $keyPairId);
@@ -349,23 +351,23 @@ class StreamWrapperConfiguration extends Collection {
     }
 
     // Check whether local file caching is turned on.
-    if (variable_get('amazons3_cache', $defaults['caching'])) {
+    if ($settings->get('cache')) {
       $config->enableCaching();
-      $config->setCacheLifetime(variable_get('amazons3_cache_expiration', NULL));
+      $config->setCacheLifetime($settings->get('cache_expiration'));
     }
     else {
       $config->disableCaching();
     }
 
     // Torrent list.
-    $torrentPaths = variable_get('amazons3_torrents', array());
+    $torrentPaths = $settings->get('torrents');
     $paths = BasicPath::factory($torrentPaths);
     if (!empty($paths)) {
       $config->setTorrentPaths(new MatchablePaths($paths));
     }
 
     // Presigned url-list.
-    $presigned_urls = variable_get('amazons3_presigned_urls', array());
+    $presigned_urls = $settings->get('presigned_urls');
     $paths = array();
     foreach ($presigned_urls as $presigned_url) {
       $paths[] = new PresignedPath($presigned_url['pattern'], $presigned_url['timeout']);
@@ -374,27 +376,15 @@ class StreamWrapperConfiguration extends Collection {
       $config->setPresignedPaths(new MatchablePaths($paths));
     }
 
-    /**
-    foreach ($presigned_urls as $presigned_url) {
-      // Check for an explicit key.
-      $matches = array();
-      if (preg_match('/(.*)\|(.*)/', $presigned_url, $matches)) {
-        $config->presignedUrls[$matches[2]] = $matches[1];
-      }
-      else {
-        $config->presignedUrls[$presigned_url] = 60;
-      }
-    }*/
-
     // Force "save as" list.
-    $saveAsPaths = variable_get('amazons3_saveas', array());
+    $saveAsPaths = $settings->get('saveas');
     $paths = BasicPath::factory($saveAsPaths);
     if (!empty($paths)) {
       $config->setSaveAsPaths(new MatchablePaths($paths));
     }
 
     // Reduced Redundancy Storage.
-    $rrsPaths = variable_get('amazons3_rrs', array());
+    $rrsPaths = $settings->get('rrs');;
     $paths = BasicPath::factory($rrsPaths);
     if (!empty($paths)) {
       $config->setReducedRedundancyPaths(new MatchablePaths($paths));

@@ -70,7 +70,8 @@ class S3Client {
    */
   public static function factory($config = array()) {
     if (!isset($config['credentials'])) {
-      $config['credentials'] = new Credentials(static::variable_get('amazons3_key'), static::variable_get('amazons3_secret'));
+      $settings = \Drupal::config('amazons3.settings');
+      $config['credentials'] = new Credentials($settings->get('key'), $settings->get('secret'));
     }
 
     $client = \Aws\S3\S3Client::factory($config);
