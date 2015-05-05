@@ -16,7 +16,9 @@ trait Module {
    */
   public function module_invoke_all($hook) {
     $args = func_get_args();
-    return call_user_func_array('\module_invoke_all', $args);
+    // Remove $hook from the arguments.
+    unset($args[0]);
+    return \Drupal::moduleHandler()->invokeAll($hook, $args);
   }
 
   /**
@@ -25,9 +27,8 @@ trait Module {
    * @param $data
    * @param null $context1
    * @param null $context2
-   * @param null $context3
    */
-  public function drupal_alter($type, &$data, &$context1 = NULL, &$context2 = NULL, &$context3 = NULL) {
-    \drupal_alter($type, $data, $context1, $context2, $context3);
+  public function drupal_alter($type, &$data, &$context1 = NULL, &$context2 = NULL) {
+    \Drupal::moduleHandler()->alter($type, $data, $context1, $context2);
   }
 }

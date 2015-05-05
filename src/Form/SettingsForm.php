@@ -130,7 +130,7 @@ class SettingsForm extends ConfigFormBase {
     $form['amazons3_cloudfront'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Enable CloudFront'),
-      '#description' => $this->t('Deliver URLs through a CloudFront domain when using presigned URLs.'),
+      '#description' => $this->t('Deliver URLs through a CloudFront domain when using presigned URLs. This requires additional settings.php configuation. See README.md for details.  Note that CloudFront URLs do not support other configuration options like Force Save As or Torrents, but they do support presigned URLs.'),
       '#default_value' => $config->get('cloudfront'),
       '#states' => array(
         'visible' => array(
@@ -149,7 +149,7 @@ class SettingsForm extends ConfigFormBase {
     $form['amazons3_torrents'] = array(
       '#type' => 'textarea',
       '#title' => $this->t('Torrents'),
-      '#description' => $this->t('A list of paths that should be delivered through a torrent url. Enter one value per line e.g. "mydir/*". Paths are relative to the Drupal file directory and use patterns as per <a href="@preg_match">preg_match</a>. This won\'t work for CloudFront presigned URLs.', array('@preg_match' => 'http://php.net/preg_match')),
+      '#description' => $this->t('A list of paths that should be delivered through a torrent url. Enter one value per line e.g. "mydir/.*". Paths are relative to the Drupal file directory and use patterns as per <a href="@preg_match">preg_match</a>. This won\'t work for CloudFront presigned URLs.', array('@preg_match' => 'http://php.net/preg_match')),
       '#default_value' => implode("\n", $config->get('torrents')),
       '#rows' => 10,
     );
@@ -162,7 +162,7 @@ class SettingsForm extends ConfigFormBase {
     $form['amazons3_presigned_urls'] = array(
       '#type' => 'textarea',
       '#title' => $this->t('Presigned URLs'),
-      '#description' => $this->t('A list of timeouts and paths that should be delivered through a presigned url. Enter one value per line, in the format &lt;timeout&gt;|&lt;path&gt;|&lt;protocol&gt;. e.g. "60|mydir/*" or "60|mydir/*|https". Paths are relative to the Drupal file directory and use patterns as per <a href="@preg_match">preg_match</a>.', array('@preg_match' => 'http://php.net/preg_match')),
+      '#description' => $this->t('A list of timeouts and paths that should be delivered through a presigned url. Enter one value per line, in the format &lt;timeout&gt;|&lt;path&gt; e.g. "60|mydir/.*". Paths are relative to the Drupal file directory and use patterns as per <a href="@preg_match">preg_match</a>.', array('@preg_match' => 'http://php.net/preg_match')),
       '#default_value' => implode("\n", $lines),
       '#rows' => 10,
     );
@@ -170,7 +170,7 @@ class SettingsForm extends ConfigFormBase {
     $form['amazons3_saveas'] = array(
       '#type' => 'textarea',
       '#title' => $this->t('Force Save As'),
-      '#description' => $this->t('A list of paths that force the user to save the file by using Content-disposition header. Prevents autoplay of media. Enter one value per line. e.g. "mydir/*". Paths are relative to the Drupal file directory and use patterns as per <a href="@preg_match">preg_match</a>. Files must use a presigned url to use this, however it won\'t work for CloudFront presigned URLs and you\'ll need to set the content-disposition header in the file metadata before saving.', array('@preg_match' => 'http://php.net/preg_match')),
+      '#description' => $this->t('A list of paths that force the user to save the file by using Content-disposition header. Prevents autoplay of media. Enter one value per line. e.g. "mydir/.*". Paths are relative to the Drupal file directory and use patterns as per <a href="@preg_match">preg_match</a>. Files must use a presigned url to use this, however it won\'t work for CloudFront presigned URLs and you\'ll need to set the content-disposition header in the file metadata before saving.', array('@preg_match' => 'http://php.net/preg_match')),
       '#default_value' => implode("\n", $config->get('saveas')),
       '#rows' => 10,
     );
@@ -178,7 +178,7 @@ class SettingsForm extends ConfigFormBase {
     $form['amazons3_rrs'] = array(
       '#type' => 'textarea',
       '#title' => $this->t('Reduced Redundancy Storage'),
-      '#description' => $this->t('A list of paths that save the file in <a href="@rrs">Reduced Redundancy Storage</a>. Enter one value per line. e.g. "styles/*". Paths are relative to the Drupal file directory and use patterns as per <a href="@preg_match">preg_match</a>.', array('@rrs' => 'http://aws.amazon.com/s3/faqs/#rrs_anchor', '@preg_match' => 'http://php.net/preg_match')),
+      '#description' => $this->t('A list of paths that save the file in <a href="@rrs">Reduced Redundancy Storage</a>. Enter one value per line. e.g. "styles/.*". Paths are relative to the Drupal file directory and use patterns as per <a href="@preg_match">preg_match</a>.', array('@rrs' => 'http://aws.amazon.com/s3/faqs/#rrs_anchor', '@preg_match' => 'http://php.net/preg_match')),
       '#default_value' => implode("\n", $config->get('rrs')),
       '#rows' => 10,
     );
@@ -193,10 +193,10 @@ class SettingsForm extends ConfigFormBase {
     $cloudfront = $form_state['values']['amazons3_cloudfront'];
 
     if ($cloudfront) {
-      $keypair = variable_get('aws_cloudfront_keypair', '');
-      $pem = variable_get('aws_cloudfront_pem', '');
+      $keypair = variable_get('amazons3_cloudfront_keypair_id', FALSE);
+      $pem = variable_get('amazons3_cloudfront_private_key', FALSE);
       if (empty($keypair) || empty($pem)) {
-        form_set_error('amazons3_cloudfront', t('You must configure your CloudFront credentials in the awksdk module.'));
+        form_set_error('amazons3_cloudfront', t('You must configure your CloudFront credentials in settings.php.'));
       }
     }
     */
